@@ -1,0 +1,349 @@
+# URCV - Universal Resume Conversion & Verification
+
+> **Upload Any Resume. Edit Easily. Convert to Any Template.**
+
+URCV is a production-grade SaaS platform that eliminates the painful workflow of converting resumes between formats, fixing broken layouts, and optimizing for ATS systems.
+
+## 🎯 Vision
+
+Students and professionals waste hours converting resumes from PDF to Word, recreating college templates, and improving ATS scores. **URCV eliminates this entire workflow.**
+
+Upload a PDF → Verify information → Edit in structured form → Convert to any template → Export professional PDF. No Microsoft Word. No Canva. No formatting headaches.
+
+## ⭐ Key Features
+
+### 1. Universal Template Engine
+- Convert any resume to **any template**
+- Supports college-specific formats (Amity, MIT, Harvard)
+- Company-specific templates
+- ATS-optimized formats
+- **Layout preservation guaranteed**
+
+### 2. Smart Resume Parser
+- Extract data from any PDF format
+- OCR fallback for scanned documents
+- AI-enhanced extraction
+- Confidence scoring for verification
+- Converts to structured Resume JSON
+
+### 3. Structured Resume Editor
+- Mobile-first editing interface
+- Card-based sections
+- No Word-style complexity
+- Real-time validation
+- Overflow warnings
+
+### 4. ATS Analysis Engine
+- **Real rule-based scoring** (not fake percentages)
+- Contact information check
+- Section structure validation
+- Formatting compliance
+- Keyword analysis
+- Actionable suggestions
+
+### 5. AI Improvements
+- Improve projects, experience, summaries
+- Grammar and tone enhancement
+- Action verb suggestions
+- **User always in control** - AI suggests, user decides
+
+### 6. JD Matching
+- Match resume against job descriptions
+- Identify missing skills
+- Keyword gap analysis
+- Improvement recommendations
+
+### 7. Export Engine
+- PDF export
+- DOCX export (coming soon)
+- ATS-optimized PDF
+- Template-specific exports
+
+## 🏗️ Architecture
+
+URCV follows **Clean Architecture** principles with a **Feature-Based** organization:
+
+```
+┌─────────────────────────────────────┐
+│   Presentation (React + TypeScript) │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│   Application (Business Logic)      │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│   Domain (Resume JSON, Rules)       │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│   Infrastructure (DB, Storage, AI)  │
+└─────────────────────────────────────┘
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18** + TypeScript
+- **Vite** (blazing fast builds)
+- **Tailwind CSS** + shadcn/ui
+- **TanStack Query** (server state)
+- **Zustand** (client state)
+- **React Hook Form** + Zod
+
+### Backend
+- **Python 3.11+**
+- **FastAPI** (modern async API)
+- **SQLAlchemy 2.0** (async ORM)
+- **Pydantic v2** (validation)
+- **Celery** (async tasks)
+
+### Database & Storage
+- **PostgreSQL 15+** (primary database)
+- **Redis 7+** (cache & message broker)
+- **S3-compatible** storage (AWS S3 / MinIO)
+
+### PDF & AI
+- **PyMuPDF** + pdfplumber (extraction)
+- **Tesseract** (OCR)
+- **Claude 3.5 Sonnet** (AI improvements)
+- **ReportLab** + WeasyPrint (generation)
+
+### DevOps
+- **Docker** + Docker Compose
+- **GitHub Actions** (CI/CD)
+- **Vercel** (frontend hosting)
+- **Railway** / Fly.io (backend hosting)
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL 15+
+- Redis 7+
+
+### Local Development Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/urcv.git
+cd urcv
+```
+
+2. **Set up environment variables**
+```bash
+# Backend
+cp backend/.env.example backend/.env
+# Edit backend/.env and add your API keys
+
+# Frontend
+cp frontend/.env.example frontend/.env
+```
+
+3. **Start services with Docker Compose**
+```bash
+docker-compose up -d
+```
+
+This starts:
+- PostgreSQL (port 5432)
+- Redis (port 6379)
+- MinIO (ports 9000, 9001)
+- Backend API (port 8000)
+- Frontend (port 5173)
+- Celery worker
+
+4. **Run database migrations**
+```bash
+cd backend
+alembic upgrade head
+```
+
+5. **Access the application**
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/api/docs
+- MinIO Console: http://localhost:9001
+
+### Manual Setup (without Docker)
+
+#### Backend Setup
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run migrations
+alembic upgrade head
+
+# Start server
+uvicorn app.main:app --reload
+```
+
+#### Frontend Setup
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+```
+
+## 📁 Project Structure
+
+```
+urcv/
+├── backend/              # FastAPI backend
+│   ├── app/
+│   │   ├── api/         # API routes & middleware
+│   │   ├── core/        # Config, security, logging
+│   │   ├── domain/      # Business logic & schemas
+│   │   ├── features/    # Feature modules
+│   │   ├── infrastructure/  # DB, storage, external services
+│   │   └── main.py      # Application entry point
+│   ├── alembic/         # Database migrations
+│   ├── tests/           # Backend tests
+│   └── requirements.txt
+├── frontend/            # React frontend
+│   ├── src/
+│   │   ├── components/  # Reusable UI components
+│   │   ├── features/    # Feature modules
+│   │   ├── hooks/       # Custom hooks
+│   │   ├── lib/         # Utilities & configs
+│   │   └── App.tsx
+│   └── package.json
+├── docs/                # Documentation
+│   ├── ARCHITECTURE.md
+│   ├── DATABASE_SCHEMA.md
+│   ├── RESUME_JSON_SCHEMA.md
+│   └── IMPLEMENTATION_ROADMAP.md
+└── docker-compose.yml
+```
+
+## 📚 Documentation
+
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[Database Schema](docs/DATABASE_SCHEMA.md)** - Complete database schema
+- **[Resume JSON Schema](docs/RESUME_JSON_SCHEMA.md)** - The source of truth for resume data
+- **[Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md)** - Development phases and progress
+- **[PRD](PRD.md)** - Complete product requirements
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd backend
+pytest
+pytest --cov=app  # With coverage
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm run test
+npm run test:e2e  # Playwright E2E tests
+```
+
+## 🔒 Security
+
+URCV takes security seriously:
+
+- JWT authentication with refresh tokens
+- Password hashing with bcrypt
+- Rate limiting
+- CORS protection
+- Input validation (Pydantic)
+- SQL injection prevention (ORM)
+- File type validation
+- Signed URLs for S3 access
+- Audit logging
+
+## 📈 Performance
+
+- Async/await throughout (FastAPI + SQLAlchemy)
+- Database connection pooling
+- Redis caching (ATS scores, user data)
+- Background job processing (Celery)
+- Code splitting (React lazy loading)
+- CDN for static assets
+
+## 🚢 Deployment
+
+### Production Deployment
+
+**Frontend (Vercel)**
+```bash
+cd frontend
+vercel --prod
+```
+
+**Backend (Railway/Fly.io)**
+```bash
+cd backend
+railway up  # or: fly deploy
+```
+
+See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with modern best practices in mind
+- Inspired by the frustrations of students during placement season
+- Powered by amazing open-source tools
+
+## 📞 Support
+
+- **Documentation**: [docs/](docs/)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/urcv/issues)
+- **Email**: support@urcv.app
+
+## 🗺️ Roadmap
+
+### Phase 1 (MVP) ✅
+- [x] Architecture & Database Schema
+- [x] Resume JSON Schema
+- [x] Core infrastructure
+- [ ] Authentication
+- [ ] Resume Parser
+- [ ] Resume Editor
+- [ ] Template Engine
+- [ ] Export (PDF)
+
+### Phase 2
+- [ ] ATS Analysis
+- [ ] AI Improvements
+- [ ] Multiple Templates
+- [ ] Complete Frontend UI
+
+### Phase 3
+- [ ] JD Matching
+- [ ] DOCX Export
+- [ ] Performance Optimizations
+- [ ] SaaS Billing
+
+### Future
+- Resume Marketplace
+- University Template Library
+- Team Accounts
+- Browser Extension
+
+---
+
+**Made with ❤️ for students and professionals who deserve better resume tools.**
