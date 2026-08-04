@@ -1,0 +1,1 @@
+Never change the product vision, architecture, UX philosophy, or core features defined in PRD.md unless explicitly instructed by the project owner.
