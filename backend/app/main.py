@@ -110,6 +110,7 @@ app.middleware("http")(error_handler_middleware)
 
 # Include routers
 from app.api.routes import auth, resume, ats, ai
+from app.api.routes import export as export_routes
 
 app.include_router(
     health.router,
@@ -139,6 +140,12 @@ app.include_router(
     ai.router,
     prefix=f"{settings.API_V1_PREFIX}/resumes",
     tags=["ai"]
+)
+
+app.include_router(
+    export_routes.router,
+    prefix=f"{settings.API_V1_PREFIX}/resumes",
+    tags=["export"]
 )
 
 

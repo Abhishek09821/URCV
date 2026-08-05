@@ -118,54 +118,82 @@ URCV follows **Clean Architecture** principles with a **Feature-Based** organiza
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+
-- Redis 7+
+- Docker & Docker Compose (recommended)
+- OR: Python 3.11+ and PostgreSQL 15+
 
-### Local Development Setup
+### Option 1: Docker (Easiest - Recommended)
 
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/urcv.git
+# 1. Clone repository
+git clone <repo-url>
 cd urcv
-```
 
-2. **Set up environment variables**
-```bash
-# Backend
+# 2. Configure environment
 cp backend/.env.example backend/.env
-# Edit backend/.env and add your API keys
+# Edit backend/.env if needed (defaults work with Docker)
 
-# Frontend
-cp frontend/.env.example frontend/.env
-```
-
-3. **Start services with Docker Compose**
-```bash
+# 3. Start all services
 docker-compose up -d
+
+# 4. Initialize database
+docker-compose exec backend python scripts/init_db.py
+# OR use Alembic migrations:
+docker-compose exec backend alembic upgrade head
+
+# 5. Verify setup
+docker-compose exec backend python scripts/verify_setup.py
+
+# 6. Test API
+docker-compose exec backend python scripts/test_api.py
+
+# 7. Access services
+# API Docs: http://localhost:8000/api/docs
+# Health: http://localhost:8000/health
+# MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 ```
 
-This starts:
-- PostgreSQL (port 5432)
-- Redis (port 6379)
-- MinIO (ports 9000, 9001)
-- Backend API (port 8000)
-- Frontend (port 5173)
-- Celery worker
+### Option 2: Manual Setup
 
-4. **Run database migrations**
 ```bash
 cd backend
-alembic upgrade head
+
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Set up PostgreSQL
+createdb urcv_db
+createuser urcv_user -P
+
+# 3. Start Redis
+redis-server
+
+# 4. Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 5. Initialize database
+python scripts/init_db.py
+# OR: alembic upgrade head
+
+# 6. Start server
+uvicorn app.main:app --reload
+
+# 7. Access API docs
+open http://localhost:8000/api/docs
 ```
 
-5. **Access the application**
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/api/docs
-- MinIO Console: http://localhost:9001
+### Quick Verification
+
+```bash
+# Check health
+curl http://localhost:8000/health
+
+# View detailed health
+curl http://localhost:8000/api/v1/health/detailed
+
+# Open interactive API docs
+open http://localhost:8000/api/docs
+```
 
 ### Manual Setup (without Docker)
 
