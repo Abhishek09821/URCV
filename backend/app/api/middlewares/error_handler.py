@@ -36,7 +36,7 @@ async def error_handler_middleware(request: Request, call_next: Callable) -> JSO
             "Application exception occurred",
             extra={
                 "exception": exc.__class__.__name__,
-                "message": exc.message,
+                "error_message": exc.message,
                 "status_code": exc.status_code,
                 "details": exc.details,
                 "url": str(request.url),

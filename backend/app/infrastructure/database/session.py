@@ -34,7 +34,7 @@ def get_engine() -> AsyncEngine:
     global _engine
     
     if _engine is None:
-        logger.info("Creating database engine", extra={"url": str(settings.DATABASE_URL)})
+        logger.info("Creating database engine", extra={"url": settings.DATABASE_URL})
         
         engine_kwargs: dict[str, Any] = {
             "echo": settings.DEBUG,  # Log SQL queries in debug mode
@@ -53,7 +53,7 @@ def get_engine() -> AsyncEngine:
             })
         
         _engine = create_async_engine(
-            str(settings.DATABASE_URL),
+            settings.DATABASE_URL,
             **engine_kwargs
         )
         
@@ -132,9 +132,10 @@ async def check_db_connection() -> bool:
         True if connection is healthy, False otherwise
     """
     try:
+        from sqlalchemy import text
         engine = get_engine()
         async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
+            await conn.execute(text("SELECT 1"))
         return True
     except Exception as e:
         logger.error("Database connection check failed", extra={"error": str(e)})

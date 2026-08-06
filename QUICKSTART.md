@@ -1,372 +1,403 @@
-# URCV Quick Start Guide
+# URCV - Quick Start Guide
 
-Get URCV running locally in under 5 minutes.
+Get the complete URCV application running in 5 minutes!
+
+---
 
 ## Prerequisites
 
-- [Docker](https://www.docker.com/get-started) and Docker Compose
-- [Git](https://git-scm.com/downloads)
-- (Optional) Python 3.11+ and Node.js 18+ for manual setup
+- **Docker** and **Docker Compose** installed
+- **Node.js 18+** installed
+- **Terminal** access
 
-## 🚀 Fast Start (Docker)
+---
 
-### 1. Clone the Repository
+## Option 1: Docker (Recommended - Fastest)
+
+### Step 1: Start Backend Services
+
 ```bash
-git clone <repository-url>
-cd urcv
-```
+# Navigate to project
+cd /Users/abhishektiwari/URCV
 
-### 2. Set Up Environment
-```bash
-# Copy example environment file
-cp backend/.env.example backend/.env
-
-# (Optional) Edit backend/.env to add API keys
-# ANTHROPIC_API_KEY=your-claude-api-key
-# GEMINI_API_KEY=your-gemini-api-key
-```
-
-### 3. Start All Services
-```bash
+# Start all backend services (PostgreSQL, Redis, MinIO, Backend API)
 docker-compose up -d
-```
 
-This command starts:
-- ✅ PostgreSQL database (port 5432)
-- ✅ Redis cache (port 6379)
-- ✅ MinIO storage (ports 9000, 9001)
-- ✅ Backend API (port 8000)
-- ✅ Celery worker (background jobs)
+# Wait for services to be ready (10-15 seconds)
+sleep 15
 
-### 4. Run Database Migrations
-```bash
+# Run database migrations
 docker-compose exec backend alembic upgrade head
+
+# Verify backend is running
+curl http://localhost:8000/health
+# Should return: {"status":"healthy"}
 ```
 
-### 5. Verify Everything is Running
-```bash
-# Check service health
-curl http://localhost:8000/api/v1/health/detailed
-
-# Expected response:
-# {
-#   "status": "healthy",
-#   "version": "1.0.0",
-#   "components": {
-#     "database": {"status": "healthy"},
-#     ...
-#   }
-# }
-```
-
-### 6. Access Services
-
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| **Backend API** | http://localhost:8000 | - |
-| **API Docs (Swagger)** | http://localhost:8000/api/docs | - |
-| **MinIO Console** | http://localhost:9001 | minioadmin / minioadmin |
-| **PostgreSQL** | localhost:5432 | urcv_user / urcv_password |
-| **Redis** | localhost:6379 | - |
-
-## 🛠️ Manual Setup (Without Docker)
-
-### Backend Setup
-
-1. **Install PostgreSQL 15+**
-   ```bash
-   # macOS
-   brew install postgresql@15
-   brew services start postgresql@15
-   
-   # Create database
-   createdb urcv_db
-   createuser urcv_user -P  # Enter password: urcv_password
-   ```
-
-2. **Install Redis 7+**
-   ```bash
-   # macOS
-   brew install redis
-   brew services start redis
-   ```
-
-3. **Install Tesseract (for OCR)**
-   ```bash
-   # macOS
-   brew install tesseract
-   
-   # Linux (Ubuntu/Debian)
-   sudo apt-get install tesseract-ocr
-   ```
-
-4. **Set up Python environment**
-   ```bash
-   cd backend
-   
-   # Create virtual environment
-   python3.11 -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   
-   # Install dependencies
-   pip install -r requirements.txt
-   ```
-
-5. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
-
-6. **Run migrations**
-   ```bash
-   alembic upgrade head
-   ```
-
-7. **Start backend**
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-
-8. **Start Celery worker** (in another terminal)
-   ```bash
-   cd backend
-   source venv/bin/activate
-   celery -A app.celery_app worker --loglevel=info
-   ```
-
-### Frontend Setup (Coming Soon)
+### Step 2: Start Frontend
 
 ```bash
+# Navigate to frontend
 cd frontend
+
+# Install dependencies (first time only)
 npm install
+
+# Create environment file
+cat > .env << EOF
+VITE_API_BASE_URL=http://localhost:8000
+EOF
+
+# Start development server
 npm run dev
 ```
 
-## 📝 Common Commands
+### Step 3: Access Application
 
-### Docker Commands
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/api/docs
+- **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
+
+---
+
+## Option 2: Manual Setup (Development)
+
+### Step 1: Setup Backend
+
 ```bash
-# Start all services
-docker-compose up -d
+cd backend
 
-# Stop all services
-docker-compose down
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# View logs
-docker-compose logs -f backend
+# Install dependencies
+pip install -r requirements.txt
 
-# Restart a service
-docker-compose restart backend
+# Create .env file
+cat > .env << EOF
+# Database
+POSTGRES_SERVER=localhost
+POSTGRES_USER=urcv_user
+POSTGRES_PASSWORD=urcv_password
+POSTGRES_DB=urcv_db
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# S3 (MinIO)
+S3_ENDPOINT_URL=http://localhost:9000
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_BUCKET_NAME=urcv-files
+
+# Security
+SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))")
+
+# Optional: AI Features
+# ANTHROPIC_API_KEY=your_claude_api_key_here
+EOF
+
+# Start PostgreSQL (if not running)
+# brew services start postgresql@14  # macOS
+# sudo systemctl start postgresql    # Linux
+
+# Create database
+createdb urcv_db
 
 # Run migrations
-docker-compose exec backend alembic upgrade head
-
-# Access backend shell
-docker-compose exec backend bash
-
-# Access PostgreSQL
-docker-compose exec postgres psql -U urcv_user -d urcv_db
-```
-
-### Database Commands
-```bash
-# Create new migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
 alembic upgrade head
 
-# Rollback one version
-alembic downgrade -1
-
-# Show current version
-alembic current
-
-# Show history
-alembic history
+# Start backend server
+uvicorn app.main:app --reload
 ```
 
-### Development Commands
+### Step 2: Setup Frontend
+
 ```bash
-# Format code
-cd backend
-black .
+# In a new terminal
+cd frontend
 
-# Lint code
-ruff check .
+# Install dependencies
+npm install
 
-# Type check
-mypy app
+# Create .env
+echo "VITE_API_BASE_URL=http://localhost:8000" > .env
 
-# Run tests
-pytest
-
-# Run tests with coverage
-pytest --cov=app --cov-report=html
+# Start dev server
+npm run dev
 ```
 
-## 🧪 Testing the API
+---
 
-### Using curl
+## First Steps
+
+### 1. Register an Account
+
+1. Open http://localhost:3000
+2. Click "Sign up"
+3. Fill in:
+   - Full Name: John Doe
+   - Email: john@example.com
+   - Password: password123
+4. Click "Create Account"
+5. You'll be auto-logged in
+
+### 2. Upload Your First Resume
+
+1. Click "Upload Resume" button
+2. Drag and drop a PDF resume (or click to browse)
+3. Click "Upload & Parse Resume"
+4. Wait 2-3 seconds for parsing
+5. View parsed data with confidence scores
+
+### 3. Edit Resume Data
+
+1. From dashboard, click on your resume
+2. Click "Edit Resume" button
+3. Click section tabs (Personal, Summary, Skills, etc.)
+4. Edit any field
+5. Click "Save Changes"
+
+### 4. Run ATS Analysis
+
+1. From resume detail page
+2. Click "Show ATS Analysis"
+3. View overall score and category breakdown
+4. See keywords found/missing
+5. Read improvement suggestions
+
+### 5. Generate AI Improvements (Optional)
+
+> **Note**: Requires ANTHROPIC_API_KEY in backend .env
+
+1. Click "AI Improvements"
+2. Select section to improve (Summary, Experience, etc.)
+3. Choose improvement types (Grammar, Action Verbs, etc.)
+4. Click "Generate AI Improvement"
+5. Review before/after comparison
+6. Click "Apply" or "Reject"
+
+### 6. Export Resume
+
+1. Click "Export" button
+2. Choose format (PDF - ATS-optimized)
+3. Click "Export as PDF"
+4. File downloads automatically
+5. View export history
+
+---
+
+## Verify Everything Works
+
+Run this checklist:
+
 ```bash
-# Health check
+# Backend health check
 curl http://localhost:8000/health
+# ✅ Should return: {"status":"healthy"}
 
-# Detailed health check
-curl http://localhost:8000/api/v1/health/detailed
+# Frontend running
+curl http://localhost:3000
+# ✅ Should return HTML
 
-# View API docs (in browser)
+# Database connection
+docker-compose exec backend python -c "from app.infrastructure.database import check_db_connection; import asyncio; print(asyncio.run(check_db_connection()))"
+# ✅ Should return: True
+
+# API docs accessible
 open http://localhost:8000/api/docs
+# ✅ Should open Swagger UI
 ```
 
-### Using Python
-```python
-import requests
+---
 
-# Basic health check
-response = requests.get("http://localhost:8000/health")
-print(response.json())
+## Common Issues & Solutions
 
-# Detailed health check
-response = requests.get("http://localhost:8000/api/v1/health/detailed")
-print(response.json())
-```
-
-### Using HTTPie
+### Issue: Port 8000 already in use
 ```bash
-# Install httpie
-pip install httpie
+# Find process
+lsof -ti:8000
 
-# Make requests
-http GET http://localhost:8000/api/v1/health/detailed
-```
-
-## 📂 Project Structure
-
-```
-urcv/
-├── backend/              # FastAPI backend
-│   ├── app/             # Application code
-│   ├── alembic/         # Database migrations
-│   ├── tests/           # Tests
-│   └── requirements.txt
-├── frontend/            # React frontend (coming soon)
-├── docs/               # Documentation
-├── docker-compose.yml  # Docker services
-└── README.md
-```
-
-## 🐛 Troubleshooting
-
-### Port Already in Use
-```bash
-# Find and kill process using port 8000
-lsof -ti:8000 | xargs kill -9
+# Kill it
+kill -9 $(lsof -ti:8000)
 
 # Or change port in docker-compose.yml
 ```
 
-### Database Connection Failed
+### Issue: PostgreSQL connection failed
 ```bash
 # Check if PostgreSQL is running
 docker-compose ps postgres
 
-# View PostgreSQL logs
-docker-compose logs postgres
-
 # Restart PostgreSQL
 docker-compose restart postgres
+
+# Check logs
+docker-compose logs postgres
 ```
 
-### Redis Connection Failed
+### Issue: Frontend can't connect to backend
 ```bash
-# Check if Redis is running
-docker-compose ps redis
+# Check backend is running
+curl http://localhost:8000/health
 
-# Test Redis connection
-docker-compose exec redis redis-cli ping
+# Check CORS settings in backend/.env
+# Ensure BACKEND_CORS_ORIGINS includes http://localhost:3000
+
+# Restart backend
+docker-compose restart backend
 ```
 
-### MinIO Not Starting
+### Issue: npm install fails
 ```bash
-# Check MinIO logs
-docker-compose logs minio
+# Clear npm cache
+npm cache clean --force
 
-# Recreate MinIO
-docker-compose rm -f minio
-docker-compose up -d minio
+# Remove node_modules
+rm -rf node_modules package-lock.json
+
+# Reinstall
+npm install
 ```
 
-### Migrations Failed
+### Issue: Build fails
 ```bash
-# Check current migration status
-docker-compose exec backend alembic current
+# Check Node version
+node --version
+# Should be 18 or higher
 
-# Try downgrading and upgrading
-docker-compose exec backend alembic downgrade -1
-docker-compose exec backend alembic upgrade head
-
-# If still failing, check database state
-docker-compose exec postgres psql -U urcv_user -d urcv_db -c "\dt"
+# Update Node if needed
+# nvm install 18
+# nvm use 18
 ```
 
-### Import Errors
+---
+
+## Stop All Services
+
 ```bash
-# Ensure you're in the backend directory
-cd backend
+# Stop frontend (Ctrl+C in terminal)
 
-# Activate virtual environment
-source venv/bin/activate
+# Stop backend services
+docker-compose down
 
-# Reinstall dependencies
-pip install -r requirements.txt
+# Or stop and remove volumes (fresh start)
+docker-compose down -v
 ```
 
-## 🎯 Next Steps
+---
 
-1. ✅ **You have the backend running!**
+## Production Build
 
-2. **Explore the API**
-   - Visit http://localhost:8000/api/docs
-   - Try the health check endpoints
-   - Review the OpenAPI schema
+### Frontend
+```bash
+cd frontend
+npm run build
+# Creates optimized build in dist/
 
-3. **Read the Documentation**
-   - [Architecture](docs/ARCHITECTURE.md) - System design
-   - [Database Schema](docs/DATABASE_SCHEMA.md) - DB structure
-   - [Resume JSON Schema](docs/RESUME_JSON_SCHEMA.md) - Data model
-   - [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - What's next
+# Preview production build
+npm run preview
+```
 
-4. **Start Developing**
-   - Check [IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md)
-   - Next feature: Authentication
-   - See [backend/README.md](backend/README.md) for development guide
+### Backend
+```bash
+# Already production-ready with Docker
+docker build -t urcv-backend ./backend
+docker run -p 8000:8000 urcv-backend
+```
 
-5. **Run Tests** (once tests are added)
-   ```bash
-   docker-compose exec backend pytest
-   ```
+---
 
-## 📚 Additional Resources
+## Environment Variables Reference
 
-- **PRD**: [PRD.md](PRD.md) - Complete product requirements
-- **Build Summary**: [docs/BUILD_SUMMARY.md](docs/BUILD_SUMMARY.md) - What's been built
-- **Backend Guide**: [backend/README.md](backend/README.md) - Backend development
-- **Main README**: [README.md](README.md) - Project overview
+### Backend (.env)
 
-## 💡 Tips
+**Required:**
+```env
+SECRET_KEY=your-secret-key-32-chars-minimum
+POSTGRES_SERVER=localhost
+POSTGRES_USER=urcv_user
+POSTGRES_PASSWORD=urcv_password
+POSTGRES_DB=urcv_db
+REDIS_HOST=localhost
+REDIS_PORT=6379
+S3_ENDPOINT_URL=http://localhost:9000
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_BUCKET_NAME=urcv-files
+```
 
-- Use the Swagger UI at http://localhost:8000/api/docs to test API endpoints
-- Check logs with `docker-compose logs -f backend`
-- Backend auto-reloads when you change Python files
-- Use `docker-compose down -v` to reset everything (removes volumes)
-- MinIO console at http://localhost:9001 lets you browse uploaded files
+**Optional:**
+```env
+ANTHROPIC_API_KEY=sk-ant-...     # For AI improvements
+SENTRY_DSN=https://...            # For error tracking
+SMTP_HOST=smtp.gmail.com          # For email notifications
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-password
+```
 
-## 🎉 Success!
+### Frontend (.env)
 
-If you can see the API docs at http://localhost:8000/api/docs, you're all set! 
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
 
-The backend is running, the database is ready, and you can start developing features.
+---
 
-**Happy coding! 🚀**
+## Next Steps
+
+1. ✅ Application running
+2. ✅ Test all features
+3. ✅ Upload a real resume
+4. ✅ Try all operations
+5. → Read full documentation (BACKEND_COMPLETE.md, FRONTEND_COMPLETE.md)
+6. → Configure production deployment
+7. → Add custom templates
+8. → Integrate with job boards
+
+---
+
+## Support
+
+### Documentation
+- **README.md** - Project overview
+- **BACKEND_COMPLETE.md** - Backend details
+- **FRONTEND_COMPLETE.md** - Frontend details
+- **PROJECT_STATUS.md** - Overall status
+
+### API Documentation
+- Swagger UI: http://localhost:8000/api/docs
+- ReDoc: http://localhost:8000/api/redoc
+
+### Logs
+```bash
+# Backend logs
+docker-compose logs -f backend
+
+# PostgreSQL logs
+docker-compose logs -f postgres
+
+# All logs
+docker-compose logs -f
+```
+
+---
+
+## Success!
+
+If you can:
+1. ✅ See login page at http://localhost:3000
+2. ✅ Register and login successfully
+3. ✅ Upload a PDF resume
+4. ✅ See parsed resume data
+5. ✅ Edit and save changes
+6. ✅ Export a PDF
+
+**Congratulations! URCV is fully operational! 🎉**
+
+---
+
+**Ready to launch!** 🚀

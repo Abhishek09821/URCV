@@ -34,7 +34,7 @@ class ExportResponse(BaseModel):
 async def export_resume(
     resume_id: str,
     request: ExportRequest,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -61,7 +61,7 @@ async def export_resume(
 @router.get("/{resume_id}/exports")
 async def get_export_history(
     resume_id: str,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """

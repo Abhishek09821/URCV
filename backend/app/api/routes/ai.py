@@ -34,7 +34,7 @@ class ImprovementResponse(BaseModel):
 async def improve_section(
     resume_id: str,
     request: ImproveSectionRequest,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -68,7 +68,7 @@ async def improve_section(
 @router.post("/improvements/{improvement_id}/apply")
 async def apply_improvement(
     improvement_id: str,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """

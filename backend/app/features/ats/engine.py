@@ -163,7 +163,7 @@ class ATSAnalyzer:
         suggestions = []
         
         # Check for images/photos (ATS may struggle)
-        if resume._meta.detectedLayout and resume._meta.detectedLayout.hasPhoto:
+        if resume.meta.detectedLayout and resume.meta.detectedLayout.hasPhoto:
             score -= 5
             suggestions.append({
                 "category": "formatting",
@@ -172,7 +172,7 @@ class ATSAnalyzer:
             })
         
         # Multiple columns can confuse ATS
-        if resume._meta.detectedLayout and resume._meta.detectedLayout.columns > 1:
+        if resume.meta.detectedLayout and resume.meta.detectedLayout.columns > 1:
             score -= 5
             suggestions.append({
                 "category": "formatting",
@@ -181,7 +181,7 @@ class ATSAnalyzer:
             })
         
         # Check if pages > 2
-        if resume._meta.pageCount > 2:
+        if resume.meta.pageCount > 2:
             score -= 3
             suggestions.append({
                 "category": "formatting",
@@ -300,10 +300,10 @@ class ATSAnalyzer:
         
         # PDF format is good (we know it's PDF since we parsed it)
         # Single page is preferred
-        if resume._meta.pageCount == 1:
+        if resume.meta.pageCount == 1:
             # Ideal
             pass
-        elif resume._meta.pageCount == 2:
+        elif resume.meta.pageCount == 2:
             score -= 2
         else:
             score -= 4

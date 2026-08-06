@@ -26,7 +26,7 @@ class ATSAnalysisResponse(BaseModel):
 @router.post("/{resume_id}/analyze", response_model=ATSAnalysisResponse)
 async def analyze_ats(
     resume_id: str,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """

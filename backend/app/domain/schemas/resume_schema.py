@@ -118,7 +118,7 @@ class Education(BaseModel):
     relevant_coursework: list[str] = Field(default_factory=list)
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
+    confidence: int | None = Field(None, ge=0, le=100)
 
 
 class Project(BaseModel):
@@ -136,8 +136,8 @@ class Project(BaseModel):
     role: str | None = None
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
-    _wordCount: int | None = Field(None, ge=0, alias="wordCount")
+    confidence: int | None = Field(None, ge=0, le=100)
+    wordCount: int | None = Field(None, ge=0)
 
 
 class Experience(BaseModel):
@@ -155,8 +155,8 @@ class Experience(BaseModel):
     technologies: list[str] = Field(default_factory=list)
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
-    _wordCount: int | None = Field(None, ge=0, alias="wordCount")
+    confidence: int | None = Field(None, ge=0, le=100)
+    wordCount: int | None = Field(None, ge=0)
 
 
 class SkillCategory(BaseModel):
@@ -178,7 +178,7 @@ class Skills(BaseModel):
     other: list[str] = Field(default_factory=list)
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
+    confidence: int | None = Field(None, ge=0, le=100)
 
 
 class Certification(BaseModel):
@@ -192,7 +192,7 @@ class Certification(BaseModel):
     credentialUrl: HttpUrl | str | None = None
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
+    confidence: int | None = Field(None, ge=0, le=100)
 
 
 class Achievement(BaseModel):
@@ -204,7 +204,7 @@ class Achievement(BaseModel):
     issuer: str | None = None
     
     # Parser metadata
-    _confidence: int | None = Field(None, ge=0, le=100, alias="confidence")
+    confidence: int | None = Field(None, ge=0, le=100)
 
 
 class ExtractionMethods(BaseModel):
@@ -285,7 +285,7 @@ class ResumeJSON(BaseModel):
     achievements: list[Achievement] = Field(default_factory=list)
     
     # Metadata
-    _meta: MetaData
+    meta: MetaData
     
     class Config:
         """Pydantic configuration."""
@@ -317,7 +317,7 @@ class ResumeJSON(BaseModel):
                         "gpa": "8.9/10"
                     }
                 ],
-                "_meta": {
+                "meta": {
                     "parserVersion": "1.0.0",
                     "originalFilename": "resume.pdf",
                     "originalFileUrl": "s3://bucket/file.pdf",
@@ -336,7 +336,7 @@ class ResumeJSON(BaseModel):
     
     def get_overall_confidence(self) -> float:
         """Get overall confidence score."""
-        return self._meta.confidence.average()
+        return self.meta.confidence.average()
     
     def needs_verification(self, threshold: int = 85) -> bool:
         """Check if resume needs user verification."""

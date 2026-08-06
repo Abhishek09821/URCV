@@ -171,8 +171,8 @@ class AIService:
         )
         
         # Update metadata
-        resume_json._meta.lastModified = datetime.utcnow()
-        resume_json._meta.modifiedBy = "ai"
+        resume_json.meta.lastModified = datetime.utcnow()
+        resume_json.meta.modifiedBy = "ai"
         
         # Save updated resume
         resume.resume_data = resume_json.model_dump(mode='json')

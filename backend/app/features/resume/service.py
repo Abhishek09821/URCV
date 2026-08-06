@@ -99,7 +99,7 @@ class ResumeService:
             resume.resume_data = resume_json.model_dump(mode='json')
             resume.parser_version = settings.PARSER_VERSION
             resume.parsed_at = datetime.utcnow()
-            resume.confidence_scores = resume_json._meta.confidence.model_dump()
+            resume.confidence_scores = resume_json.meta.confidence.model_dump()
             
             # Determine if verification is needed
             overall_confidence = resume_json.get_overall_confidence()
@@ -210,8 +210,8 @@ class ResumeService:
         resume_json = ResumeJSON.model_validate(resume_data)
         
         # Update metadata
-        resume_json._meta.lastModified = datetime.utcnow()
-        resume_json._meta.modifiedBy = "user"
+        resume_json.meta.lastModified = datetime.utcnow()
+        resume_json.meta.modifiedBy = "user"
         
         resume.resume_data = resume_json.model_dump(mode='json')
         resume.updated_at = datetime.utcnow()

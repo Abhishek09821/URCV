@@ -36,18 +36,26 @@ class S3Storage:
             use_ssl=settings.S3_USE_SSL
         )
         self.bucket = settings.S3_BUCKET_NAME
-        self._ensure_bucket_exists()
+        self._bucket_checked = False
     
     def _ensure_bucket_exists(self) -> None:
-        """Create bucket if it doesn't exist."""
+        """Create bucket if it doesn't exist. Called lazily on first use."""
+        if self._bucket_checked:
+            return
+            
         try:
             self.client.head_bucket(Bucket=self.bucket)
+            self._bucket_checked = True
         except ClientError:
             try:
                 self.client.create_bucket(Bucket=self.bucket)
                 logger.info("Created S3 bucket", extra={"bucket": self.bucket})
+                self._bucket_checked = True
             except Exception as e:
-                logger.warning("Could not create bucket", extra={"error": str(e)})
+                logger.warning("Could not create bucket", extra={"error": str(e), "bucket": self.bucket})
+        except Exception as e:
+            # Connection errors - log but don't crash at startup
+            logger.warning("Could not connect to S3 endpoint", extra={"error": str(e), "endpoint": settings.S3_ENDPOINT_URL})
     
     def upload_file(
         self,
@@ -71,6 +79,8 @@ class S3Storage:
         Raises:
             FileUploadError: If upload fails
         """
+        self._ensure_bucket_exists()
+        
         try:
             if filename is None:
                 filename = f"{uuid4()}.pdf"
@@ -112,6 +122,8 @@ class S3Storage:
         Raises:
             FileDownloadError: If download fails
         """
+        self._ensure_bucket_exists()
+        
         try:
             response = self.client.get_object(Bucket=self.bucket, Key=key)
             return response['Body'].read()
@@ -130,6 +142,8 @@ class S3Storage:
         Raises:
             FileDeleteError: If deletion fails
         """
+        self._ensure_bucket_exists()
+        
         try:
             self.client.delete_object(Bucket=self.bucket, Key=key)
             logger.info("File deleted", extra={"key": key})
@@ -153,6 +167,8 @@ class S3Storage:
         Returns:
             Presigned URL
         """
+        self._ensure_bucket_exists()
+        
         try:
             url = self.client.generate_presigned_url(
                 'get_object',
@@ -192,6 +208,8 @@ class S3Storage:
         Returns:
             True if file exists, False otherwise
         """
+        self._ensure_bucket_exists()
+        
         try:
             self.client.head_object(Bucket=self.bucket, Key=key)
             return True

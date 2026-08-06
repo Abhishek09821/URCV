@@ -236,7 +236,7 @@ class ResumeParser:
         education_confidence = 90 if education else 40
         projects_confidence = 85 if projects else 35
         experience_confidence = 85 if experience else 35
-        skills_confidence = skills._confidence if skills._confidence else 50
+        skills_confidence = skills.confidence if skills.confidence else 50
         cert_confidence = 90 if certifications else 30
         achievement_confidence = 85 if achievements else 30
         

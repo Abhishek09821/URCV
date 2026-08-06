@@ -22,8 +22,8 @@ router = APIRouter()
 
 @router.post("/upload", response_model=ResumeUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_resume(
-    file: UploadFile = File(..., description="PDF resume file"),
-    current_user: CurrentUser = Depends(),
+    file: UploadFile,
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -62,10 +62,10 @@ async def upload_resume(
 
 @router.get("/", response_model=list[ResumeListItem])
 async def list_resumes(
+    current_user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
     skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
-    current_user: CurrentUser = Depends(),
-    db: AsyncSession = Depends(get_db)
+    limit: int = Query(20, ge=1, le=100)
 ):
     """
     List user's resumes.
@@ -97,7 +97,7 @@ async def list_resumes(
 @router.get("/{resume_id}", response_model=ResumeDetailResponse)
 async def get_resume(
     resume_id: str,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -134,7 +134,7 @@ async def get_resume(
 async def update_resume(
     resume_id: str,
     request: ResumeUpdateRequest,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -171,7 +171,7 @@ async def update_resume(
 @router.delete("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume(
     resume_id: str,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -190,7 +190,7 @@ async def delete_resume(
 async def verify_resume(
     resume_id: str,
     request: VerifyResumeRequest,
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser,
     db: AsyncSession = Depends(get_db)
 ):
     """
