@@ -14,11 +14,11 @@ A complete, production-ready SaaS platform for parsing, optimizing, and exportin
 ## 🎯 What is URCV?
 
 URCV eliminates the resume formatting nightmare. Students and professionals can:
-- Upload PDF resumes
+- Upload PDF resumes or in any format.
 - Get automatic parsing with confidence scores
 - Edit using structured forms (no Word needed)
 - Analyze ATS compatibility
-- Improve content with AI
+- Improve content with AI (basically refined it)
 - Export to ATS-optimized PDFs
 
 **No Microsoft Word. No Canva. No formatting headaches.**
